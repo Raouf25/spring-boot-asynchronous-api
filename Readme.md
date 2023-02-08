@@ -1,10 +1,10 @@
 # Spring-boot-asynchronous-api
 
 ## Steps for project building:
-1. Rest API implementation 
-2. NRT test
-3. Code coverage ( sonar & jacoco)
-4. CICD releasing 
+1. ✅ Rest API implementation 
+2. 🚧 NRT test
+3. 🚧 Code coverage (sonar & jacoco)
+4. 🚧 CICD releasing 
 
 
  

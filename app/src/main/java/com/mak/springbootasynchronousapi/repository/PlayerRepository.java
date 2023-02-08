@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 public interface PlayerRepository extends ReactiveCrudRepository<Player, Long> {
 
     Flux<Player> findByClub(String club);
+
     Flux<Player> findByNationality(String nationality);
 
 }
