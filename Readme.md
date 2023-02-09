@@ -1,4 +1,5 @@
 # Spring-boot-asynchronous-api
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Raouf25_spring-boot-asynchronous-api&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Raouf25_spring-boot-asynchronous-api)
 
 ## Steps for project building:
 1. Rest API implementation 
