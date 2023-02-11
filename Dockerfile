@@ -1,20 +1,55 @@
-FROM oracle/graalvm-ce:20.0.0-java11
+#
+# Build stage
+#
+FROM maven:3.8.7-eclipse-temurin-19 AS MAVEN_BUILD
+COPY pom.xml /build/
+COPY . /build/
+WORKDIR /build/
+RUN mvn -f /build/pom.xml clean package
 
-# For SDKMAN to work we need unzip & zip
-RUN yum install -y unzip zip
+#
+# Package stage
+#
+# base image to build a JRE
+FROM amazoncorretto:19.0.2-alpine as corretto-jdk
 
-RUN \
- # Install SDKMAN
- curl -s "https://get.sdkman.io" | bash; \
- source "$HOME/.sdkman/bin/sdkman-init.sh"; \
- # Install Maven
- sdk install maven; \
- # Install GraalVM Native Image
- gu install native-image;
+# required for strip-debug to work
+RUN apk add --no-cache binutils
 
-RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && mvn --version
+# Build small JRE image
+RUN $JAVA_HOME/bin/jlink \
+         --verbose \
+         --add-modules ALL-MODULE-PATH \
+         --strip-debug \
+         --no-man-pages \
+         --no-header-files \
+         --compress=2 \
+         --output /customjre
 
-RUN native-image --version
+# main app image
+FROM alpine:latest
+ENV JAVA_HOME=/jre
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
-# Always use source sdkman-init.sh before any command, so that we will be able to use 'mvn' command
-ENTRYPOINT bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && $0"
+# copy JRE from the base image
+COPY --from=corretto-jdk /customjre $JAVA_HOME
+
+# Add app user
+ARG APPLICATION_USER=appuser
+RUN adduser --no-create-home -u 1000 -D $APPLICATION_USER
+
+# Configure working directory
+RUN mkdir /app && \
+    chown -R $APPLICATION_USER /app
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built JAR file from the build stage
+COPY --chown=1000:1000  --from=MAVEN_BUILD /build/app/target/spring-boot-asynchronous-api-app-*.jar  /app/app.jar
+
+# Expose port 8080
+EXPOSE 8080
+
+# Run the JAR file as the entrypoint
+ENTRYPOINT [ "/jre/bin/java", "-jar", "/app/app.jar" ]
