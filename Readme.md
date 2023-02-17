@@ -3,7 +3,7 @@
 
 ## Steps for project building:
 1. ✅ Rest API implementation 
-2. 🚧 NRT test
+2. ✅ Non Regression Test:  [karate report]( https://raouf25.github.io/spring-boot-asynchronous-api/karate-summary.html )
 3. ✅ Code coverage (sonar & jacoco)
 4. 🚧 CICD releasing 
 

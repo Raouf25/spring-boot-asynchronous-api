@@ -13,7 +13,7 @@
     <artifactId>spring-boot-asynchronous-api-nrt</artifactId>
 
     <properties>
-        <skipTests>true</skipTests>
+        <sonar.skip>false</sonar.skip>
     </properties>
 
     <dependencies>
@@ -54,11 +54,31 @@
                         <include>features/SuiteTest.java</include>
                     </includes>
                     <argLine>
-                        -Dfile.encoding=UTF-8
+                        -Dfile.encoding=UTF-8 -Dapi.url={api.url}
                     </argLine>
-                    <skipTests>${skipTests}</skipTests>
+                    <skipTests>${skip.tests}</skipTests>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <api.url>http://localhost:8080</api.url>
+                <skip.tests>true</skip.tests>
+            </properties>
+        </profile>
+        <profile>
+            <id>flyServer</id>
+            <properties>
+                <api.url>https://spring-boot-asynchronous-api.fly.dev</api.url>
+                <skip.tests>false</skip.tests>
+            </properties>
+        </profile>
+    </profiles>
 </project>
