@@ -5,12 +5,11 @@ on:
   push:
     branches:
       - main
-env:
-  FLY_API_TOKEN: ${{ secrets.SPRING_BOOT_ASYNCHRONOUS_API_FLY_API_TOKEN }}
-
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+env:
+  FLY_API_TOKEN: ${{ secrets.SPRING_BOOT_ASYNCHRONOUS_API_FLY_API_TOKEN }}
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -108,7 +107,7 @@ jobs:
       - name: Non Regression Test
         continue-on-error: true
         run: |
-          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='http://spring-boot-asynchronous-api.fly.dev' 
+          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='https://spring-boot-asynchronous-api.fly.dev' 
 
       # Create a "doc" directory and move karate reports to it
       - name: Get report
