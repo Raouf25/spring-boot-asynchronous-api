@@ -108,7 +108,7 @@ jobs:
       - name: Non Regression Test
         continue-on-error: true
         run: |
-          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='http://spring-boot-asynchronous-api.fly.dev' 
+          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='https://spring-boot-asynchronous-api.fly.dev' 
 
       # Create a "doc" directory and move karate reports to it
       - name: Get report
