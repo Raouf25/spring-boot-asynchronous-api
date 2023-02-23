@@ -6,6 +6,7 @@ import com.mak.springbootasynchronousapi.model.Player;
 import com.mak.springbootasynchronousapi.service.PlayerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +55,7 @@ public class PlayerRestController {
         return processWithLog(this.playerService.getPlayersByNationality(nationality));
     }
 
-    @PostMapping("add")
+    @PostMapping(value="add", produces = MediaType.APPLICATION_JSON_VALUE)
     Mono<Player> addPlayer(@RequestBody Player player) {
         log.info("Adding player to repository");
         return processWithLog(this.playerService.addPlayer(player));
