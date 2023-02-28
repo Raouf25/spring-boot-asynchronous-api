@@ -4,7 +4,7 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches:
-      - '*'
+      - "*"
 env:
   FLY_API_TOKEN: ${{ secrets.SPRING_BOOT_ASYNCHRONOUS_API_FLY_API_TOKEN }}
 
