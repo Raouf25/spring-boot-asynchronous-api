@@ -1,10 +1,11 @@
-name: Code Quality Check
+name: Code Quality Check Feature
 
 on:
-  # Runs on pull request targeting any branch except the default branch main
+  # to fix comment : Runs on pull request targeting any branch except the default branch main
   pull_request:
-    branches:
-      - '!main'
+    types: [ opened, synchronize, reopened]
+  push:
+    branches: [ feature/*, feat/*, fix/* ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -112,19 +113,19 @@ jobs:
       # Create a "doc" directory and move karate reports to it
       - name: Get report
         run: |
-          mkdir -p doc
-          mv ./nrt/target/karate-reports/* ./doc
-          folder_path="./doc"
+          mkdir -p doc-${{ github.event.pull_request.number }}
+          mv ./nrt/target/karate-reports/* ./doc-${{ github.event.pull_request.number }}
+          folder_path="./doc-${{ github.event.pull_request.number }}"
           old_string="karate-summary.html"
           new_string="karate-summary-${{ github.event.pull_request.number }}.html"
           find "$folder_path" -type f -exec sed -i "s/$old_string/$new_string/g" {} \;
-          mv ./doc/karate-summary.html ./doc/karate-summary-${{ github.event.pull_request.number }}.html
+          mv ./doc-${{ github.event.pull_request.number }}/karate-summary.html ./doc-${{ github.event.pull_request.number }}/karate-summary-${{ github.event.pull_request.number }}.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: './doc'
+          path: './doc-${{ github.event.pull_request.number }}'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
