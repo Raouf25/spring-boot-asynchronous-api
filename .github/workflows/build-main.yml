@@ -79,7 +79,7 @@ jobs:
     name: Non Regression Test
     environment:
       name: dev-karate-report
-      url: ${{ steps.deployment.outputs.page_url }}karate-summary.html
+      url: ${{ steps.deployment.outputs.page_url }}karate-summary-${{ github.event.pull_request.number }}.html
     needs: deploy
     runs-on: ubuntu-latest
     steps:
@@ -114,6 +114,11 @@ jobs:
         run: |
           mkdir -p doc
           mv ./nrt/target/karate-reports/* ./doc
+          folder_path="./doc"
+          old_string="karate-summary.html"
+          new_string="karate-summary-${{ github.event.pull_request.number }}.html"
+          find "$folder_path" -type f -exec sed -i "s/$old_string/$new_string/g" {} \;
+          mv ./doc/karate-summary.html ./doc/karate-summary-${{ github.event.pull_request.number }}.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
