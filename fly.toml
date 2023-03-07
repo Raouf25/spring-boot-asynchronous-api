@@ -1,6 +1,6 @@
-# fly.toml file generated for spring-boot-asynchronous-api on 2023-02-17T07:54:44+01:00
+# fly.toml file generated for spring-boot-asynchronous-api-3 on 2023-03-07T07:58:30+01:00
 
-app = "spring-boot-asynchronous-api"
+app = "spring-boot-asynchronous-api-3"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
