@@ -1,7 +1,7 @@
 name: Code Quality Check Feature 2
 
 on:
-  # to fix comment : Runs on pull request targeting any branch except the default branch main
+  # to fix comment : Runs on pull request targeting test branch
   pull_request:
     types: [ opened, synchronize, reopened]
   push:
