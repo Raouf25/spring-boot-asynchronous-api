@@ -2,6 +2,9 @@ name: Dependabot reviewer
 
 on: pull_request_target
 
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 permissions:
   pull-requests: write
   contents: write
