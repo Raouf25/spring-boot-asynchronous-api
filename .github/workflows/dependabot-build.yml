@@ -1,4 +1,4 @@
-name: Code Quality Check Feature
+name: Dependabot code quality check
 
 on:
   # to fix comment : Runs on pull request targeting any branch except the default branch main
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  FLY_API_TOKEN: ${{ secrets.SPRING_BOOT_ASYNCHRONOUS_API_FLY_API_TOKEN }}
+  FLY_API_TOKEN: ${{ secrets.DEPENDABOT_SPRING_BOOT_ASYNCHRONOUS_API_FLY_API_TOKEN }}
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -26,6 +26,7 @@ concurrency:
 
 jobs:
   analyze_code:
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     name: Analyze Code Quality
     runs-on: ubuntu-latest
     steps:
@@ -65,6 +66,7 @@ jobs:
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Raouf25_spring-boot-asynchronous-api
 
   deploy:
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     environment:
       name: dev-environment
       url: https://spring-boot-asynchronous-api.fly.dev/api/v1/players/all
@@ -77,6 +79,7 @@ jobs:
       - run: flyctl deploy --remote-only
 
   non_regression_test:
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     name: Non Regression Test
     environment:
       name: dev-karate-report
