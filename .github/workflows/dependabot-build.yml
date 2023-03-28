@@ -26,7 +26,6 @@ concurrency:
 
 jobs:
   analyze_code:
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
     name: Analyze Code Quality
     runs-on: ubuntu-latest
     steps:
@@ -62,11 +61,10 @@ jobs:
       - name: Analyze Code
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.DEPENDABOT_SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Raouf25_spring-boot-asynchronous-api
 
   deploy:
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
     environment:
       name: dev-environment
       url: https://spring-boot-asynchronous-api.fly.dev/api/v1/players/all
