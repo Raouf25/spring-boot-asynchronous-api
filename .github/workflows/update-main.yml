@@ -1,0 +1,53 @@
+name: Dependabot
+
+on:
+  # Déclenche le workflow à chaque fois que Dependabot met à jour une dépendance.
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    # Ignore les mises à jour de Dependabot pour éviter une boucle infinie.
+    # Le nom de l'utilisateur Dependabot peut varier selon la configuration de votre dépôt.
+    branches-ignore:
+      - "dependabot/**"
+    # Ignore les mises à jour de Dependabot pour les fichiers Maven.
+    paths-ignore:
+      - "pom.xml"
+      - "pom.xml.versionsBackup"
+      - "pom.xml.next"
+      - "pom.xml.releaseBackup"
+  # Déclenche le workflow lorsque vous le démarrez manuellement.
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Récupère le code de la nouvelle branche proposée par Dependabot.
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # Active la récupération des sous-modules Git si nécessaire.
+          submodules: recursive
+
+      # Installe Maven et les dépendances nécessaires pour exécuter les tests.
+      - name: Setup Maven
+        uses: jvanderwee/maven-actions@master
+        with:
+          maven-version: '3.8.4'
+
+      # Exécute les tests unitaires et d'intégration s'ils sont disponibles.
+      - name: Run tests
+        run: |
+          mvn test
+
+      # Fusionne la branche de Dependabot dans la branche master si tout est OK.
+      - name: Merge pull request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: Update dependencies
+          commit-message: "chore(deps): update dependencies"
+          branch: master
+          delete-branch: true
+          token: ${{ secrets.GITHUB_TOKEN }}
