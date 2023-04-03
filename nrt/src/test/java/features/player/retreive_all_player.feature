@@ -5,7 +5,7 @@ Feature: Player API
 
   Scenario: Retrieve players list
 
-    Given path '/api/v1/players/all'
+    Given path '/api/v1/players'
     When method GET
     Then status 200
     And match $ ==
