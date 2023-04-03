@@ -1,4 +1,4 @@
-package com.mak.springbootasynchronousapi;
+package com.mak.springbootasynchronousapi.IntegrationTest;
 
 import com.mak.springbootasynchronousapi.controller.PlayerRestController;
 import com.mak.springbootasynchronousapi.model.Player;

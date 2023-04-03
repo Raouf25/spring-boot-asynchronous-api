@@ -20,10 +20,10 @@ Once you've cloned the project, you can run it with the following command:
 mvn spring-boot:run
 ```
 Once the server is up and running, you can access the web service at http://localhost:8080/.
-
+ 
 ## how run nrt locally:
 ```shell
-mvn clean test  -D"skip.tests"=false -Plocal -Dapi.url=http://localhost:8080 
+mvn clean test  -D"skip.tests"=false -Plocal -Dapi.url=http://localhost:8080/api/v1
 ```
 
 ## Github Actions
@@ -45,7 +45,15 @@ For more information, please refer to the :
 - [Testing a Java Spring Boot REST API with Karate](https://semaphoreci.com/community/tutorials/testing-a-java-spring-boot-rest-api-with-karate)
 - [jacoco-multi-module-sample](https://medium.com/javarevisited/merging-integration-unit-and-functional-test-reports-with-jacoco-de5cde9b56e1)
 - [jacoco and sonar](https://www.baeldung.com/sonarqube-jacoco-code-coverage)
-
+- r2dbc-pagination  https://www.vinsguru.com/r2dbc-pagination/
+- https://www.vinsguru.com/spring-data-r2dbc/
+- https://www.vinsguru.com/category/spring/spring-webflux/
+- https://www.vinsguru.com/choreography-saga-pattern-with-spring-boot/
+- https://www.vinsguru.com/spring-webflux-websocket/
+- https://www.vinsguru.com/orchestration-saga-pattern-with-spring-boot/
+- https://www.vinsguru.com/spring-webclient-with-feign/
+- https://www.vinsguru.com/spring-data-r2dbc-query-by-example/
+- https://www.vinsguru.com/spring-boot-graalvm-native-image/
 
 ---------------
 ## Steps of project building:
@@ -53,3 +61,4 @@ For more information, please refer to the :
 2. ✅ Non Regression Test: [karate report]( https://raouf25.github.io/spring-boot-asynchronous-api/karate-summary.html )
 3. ✅ Code coverage (sonar & jacoco): [code coverage in sonar](https://sonarcloud.io/summary/new_code?id=Raouf25_spring-boot-asynchronous-api)
 4. 🚧 CI/CD releasing 
+

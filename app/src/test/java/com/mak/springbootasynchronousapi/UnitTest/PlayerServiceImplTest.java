@@ -1,4 +1,4 @@
-package com.mak.springbootasynchronousapi;
+package com.mak.springbootasynchronousapi.UnitTest;
 
 import com.mak.springbootasynchronousapi.model.Player;
 import com.mak.springbootasynchronousapi.repository.PlayerRepository;
