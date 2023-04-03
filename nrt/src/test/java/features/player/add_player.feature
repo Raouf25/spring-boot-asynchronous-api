@@ -5,7 +5,7 @@ Feature: Player API
 
   Scenario: Retrieve players list
     * def playerToAdd = karate.read('classpath:json/new-player.json')
-    Given path '/api/v1/players/add'
+    Given path '/api/v1/players'
     And request playerToAdd
     When method POST
     Then status 200

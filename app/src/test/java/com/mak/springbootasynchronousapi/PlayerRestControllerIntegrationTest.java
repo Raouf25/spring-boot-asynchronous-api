@@ -42,7 +42,7 @@ class PlayerRestControllerIntegrationTest {
 
         when(playerService.getAllPlayers()).thenReturn(Flux.just(player1, player2));
 
-        webTestClient.get().uri("/api/v1/players/all")
+        webTestClient.get().uri("/api/v1/players")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(Player.class)
@@ -99,7 +99,7 @@ class PlayerRestControllerIntegrationTest {
         when(playerService.addPlayer(any())).thenReturn(Mono.just(player));
 
         webTestClient.post()
-                .uri("/api/v1/players/add")
+                .uri("/api/v1/players")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(player), Player.class)
                 .exchange()
@@ -113,8 +113,8 @@ class PlayerRestControllerIntegrationTest {
         Player player = new Player(id, "John", 20, "Club 1", "Country 1");
         when(playerService.updatePlayer(anyLong(), any())).thenReturn(Mono.just(player));
 
-        webTestClient.post()
-                .uri("/api/v1/players/update/{id}", id)
+        webTestClient.patch()
+                .uri("/api/v1/players/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(player), Player.class)
                 .exchange()
@@ -129,7 +129,7 @@ class PlayerRestControllerIntegrationTest {
         when(playerService.deletePlayerById(anyLong())).thenReturn(Mono.just(player));
 
         webTestClient.delete()
-                .uri("/api/v1/players/delete/{id}", id)
+                .uri("/api/v1/players/{id}", id)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(Player.class).isEqualTo(player);

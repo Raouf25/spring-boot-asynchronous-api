@@ -30,8 +30,8 @@ Github Actions is a CI/CD platform that allows developers to automate their work
 3. Run unit & integration tests
    - ✅ [code coverage in sonar](https://sonarcloud.io/summary/new_code?id=Raouf25_spring-boot-asynchronous-api)
 4. Deploy in Dev environment
-5. Run non regression tests
-6. Publish the generated reports
+   - ✅ [swagger documentation](https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html)
+5. Run non regression tests & publish the generated reports
    - ✅ [karate report]( https://raouf25.github.io/spring-boot-asynchronous-api/karate-summary.html )
    
 The workflow also runs non-regression tests as part of the build process. The reports are published to the `reports` directory and can be accessed from the Github Actions UI. The reports can also be generated locally using the `mvn test` command.
@@ -42,10 +42,10 @@ For more information, please refer to the [official documentation](https://www.b
 
 ---------------
 ## Steps of project building:
-1. ✅ Rest API implementation 
-2. ✅ Non Regression Test:  [karate report]( https://raouf25.github.io/spring-boot-asynchronous-api/karate-summary.html )
-3. ✅ Code coverage (sonar & jacoco)
-4. 🚧 CICD releasing 
+1. ✅ Rest API implementation: [swagger documentation](https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html)
+2. ✅ Non Regression Test: [karate report]( https://raouf25.github.io/spring-boot-asynchronous-api/karate-summary.html )
+3. ✅ Code coverage (sonar & jacoco): [code coverage in sonar](https://sonarcloud.io/summary/new_code?id=Raouf25_spring-boot-asynchronous-api)
+4. 🚧 CI/CD releasing 
 
 ## how run nrt locally:
 ```shell
