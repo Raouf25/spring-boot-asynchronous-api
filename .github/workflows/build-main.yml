@@ -66,8 +66,8 @@ jobs:
 
   deploy:
     environment:
-      name: dev-environment
-      url: https://spring-boot-asynchronous-api.fly.dev/api/v1/players/all
+      name: dev-swagger-ui
+      url: https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html
     name: Deploy app
     needs: analyze_code
     runs-on: ubuntu-latest
