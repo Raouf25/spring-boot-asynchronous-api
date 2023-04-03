@@ -1,0 +1,12 @@
+{
+  "id": 100,
+  "code": "P100",
+  "name": "Product 100",
+  "description": "Description of Product 100",
+  "price": 19.99,
+  "quantity": 10,
+  "inventoryStatus": "In Stock",
+  "category": "Category 1",
+  "image": "image1.jpg",
+  "rating": 4.5
+}
