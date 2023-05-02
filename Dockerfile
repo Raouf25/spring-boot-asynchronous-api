@@ -5,7 +5,8 @@ FROM maven:3.8.7-eclipse-temurin-19 AS MAVEN_BUILD
 COPY pom.xml /build/
 COPY . /build/
 WORKDIR /build/
-RUN mvn -f /build/pom.xml clean package
+#The option "--quiet" is used to limit the output to only warnings and errors
+RUN mvn -f /build/pom.xml clean package --quiet
 
 #
 # Package stage
