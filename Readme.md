@@ -8,7 +8,7 @@ This project is a sample of an asynchronous API built in Spring Boot. It provide
 ## Prerequisites
 * Java 19
 * Maven 3.3.9
-* Spring Boot 2.1.3
+* Spring Boot 3.1.0
 
 ## Getting Started
 ```bash
