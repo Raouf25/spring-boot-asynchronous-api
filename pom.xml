@@ -29,6 +29,7 @@
 	<modules>
 		<module>app</module>
 		<module>nrt</module>
+		<module>loading</module>
 	</modules>
 
 </project>
