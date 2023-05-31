@@ -2,6 +2,7 @@ HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 app/target/
+loading/target/
 nrt/target/
 **/.DS_Store
 
@@ -30,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+.DS_Store
