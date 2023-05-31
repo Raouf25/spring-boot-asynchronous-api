@@ -89,7 +89,7 @@ jobs:
     name: Non Regression Test
     environment:
       name: dev-karate-report
-      url: ${{ steps.deployment.outputs.page_url }}karate-summary.html
+      url: ${{ steps.deployment.outputs.page_url }}karate/karate-summary.html
     needs: deploy
     runs-on: ubuntu-latest
     steps:
@@ -125,6 +125,40 @@ jobs:
         run: |
           mkdir -p doc
           mv ./nrt/target/karate-reports/* ./doc
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # Upload entire repository
+          path: './doc'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+
+  loading_test:
+    name: Loading Test
+    environment:
+      name: prep-loading-report
+      # needs: non_regression_test
+      url: ${{ steps.deployment.outputs.page_url }}gatling/summary.html
+    needs: non_regression_test
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Execute Gatling Test Suite
+      - name: Execute Gatling Test Suite
+        continue-on-error: true
+        run: |
+          mvn clean gatling:test --f loading/pom.xml
+
+      # New step to generate gatling-summary.html
+      - name: Generate gatling-summary HTML
+        run: |
+          .github/scripts/extract_and_generate_html.sh
+        shell: bash
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
