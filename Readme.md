@@ -26,6 +26,12 @@ Once the server is up and running, you can access the web service at http://loca
 mvn clean test  -D"skip.tests"=false -Plocal -Dapi.url=http://localhost:8080/api/v1
 ```
 
+// TODO
+## how run nrt locally:
+```shell
+mvn -Dgatling.simulation.name=HttpSimulation4 clean gatling:test
+```
+
 ## Github Actions
 Github Actions is a CI/CD platform that allows developers to automate their workflow with custom scripts. This project contains a Github Action workflow that executes the following steps:
 
@@ -54,6 +60,7 @@ For more information, please refer to the :
 - https://www.vinsguru.com/spring-webclient-with-feign/
 - https://www.vinsguru.com/spring-data-r2dbc-query-by-example/
 - https://www.vinsguru.com/spring-boot-graalvm-native-image/
+- https://github.com/krizsan/gatling-examples
 
 ---------------
 ## Steps of project building:
