@@ -88,6 +88,12 @@
 
     <build>
         <plugins>
+            <!-- a voir           https://medium.com/ekino-france/native-image-with-spring-boot-70f32788528c-->
+            <!--            mvn -Pnative spring-boot:build-image-->
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
