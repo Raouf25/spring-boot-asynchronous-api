@@ -25,114 +25,63 @@ concurrency:
 
 
 jobs:
-  analyze_code:
-    name: Analyze Code Quality
+  loading_test:
+    name: Loading Test
+    environment:
+      name: prep-loading-report
+      # needs: non_regression_test
     runs-on: ubuntu-latest
     steps:
-      # Checkout the code from the repository
+#      # Checkout the code from the repository
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-        # Set up the Java Development Kit (JDK) version 19
-      - name: Set up JDK 19
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'corretto' # See 'Supported distributions' for available options
-          java-version: '19'
-
-      # Cache Sonar packages to speed up the build process
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      # Cache Maven packages to speed up the build process
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      # Build and analyze the code using Maven and SonarCloud
-      - name: Analyze Code
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          if [[ ${{ github.actor }} == 'dependabot[bot]' ]]; then
-            mvn -B test
-          else
-            mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Raouf25_spring-boot-asynchronous-api
-          fi
-
-  deploy:
-    environment:
-      name: dev-swagger-ui
-      url: https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html
-    name: Deploy app
-    needs: analyze_code
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only
-
-  non_regression_test:
-    name: Non Regression Test
-    environment:
-      name: dev-karate-report
-      url: ${{ steps.deployment.outputs.page_url }}karate-summary-${{ github.event.pull_request.number }}.html
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      # Checkout the code from the repository
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-        # Set up the Java Development Kit (JDK) version 19
-      - name: Set up JDK 19
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'corretto' # See 'Supported distributions' for available options
-          java-version: '19'
-
-      # Cache Maven packages to speed up the build process
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      # Non Regression Test
-      - name: Non Regression Test
+      # Execute Gatling Test Suite
+      - name: Execute Gatling Test Suite
         continue-on-error: true
         run: |
-          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='https://spring-boot-asynchronous-api.fly.dev' 
+          mvn clean gatling:test --f loading/pom.xml
 
-      # Create a "doc" directory and move karate reports to it
-      - name: Get report
-        run: |
-          mkdir -p doc-${{ github.event.pull_request.number }}
-          mv ./nrt/target/karate-reports/* ./doc-${{ github.event.pull_request.number }}
-          folder_path="./doc-${{ github.event.pull_request.number }}"
-          old_string="karate-summary.html"
-          new_string="karate-summary-${{ github.event.pull_request.number }}.html"
-          find "$folder_path" -type f -exec sed -i "s/$old_string/$new_string/g" {} \;
-          mv ./doc-${{ github.event.pull_request.number }}/karate-summary.html ./doc-${{ github.event.pull_request.number }}/karate-summary-${{ github.event.pull_request.number }}.html
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - name: Generate Job Summary
+        uses: actions/github-script@v6
         with:
-          # Upload entire repository
-          path: './doc-${{ github.event.pull_request.number }}'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+          script: |
+            const fs = require('fs')
+            const lastRuns = fs.readFileSync(`loading/target/gatling/lastRun.txt`).toString().trim().split('\n');
+            
+            for(const run of lastRuns) {
+                const formattedLine = run.replace(/(.*)-(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, ' $1 at $2-$3-$4 $5:$6:$7');
+                const results = JSON.parse(fs.readFileSync(`loading/target/gatling/${run}/js/stats.json`).toString());
+                let tableContent = [
+                    [
+                        {data: 'Request', header: true}, 
+                        {data: 'Success ✅', header: true}, 
+                        {data: 'Errors ❌', header: true}, 
+                        {data: 'Min', header: true},
+                        {data: 'Max', header: true},
+                        {data: 'Avg.', header: true},
+                        {data: 'Std. Dev.', header: true},
+                        {data: 'RPS', header: true},
+                    ]
+                ];
+            
+                for(const result in results.contents) {
+                    const requestMetrics = results.contents[result].stats;
+                    tableContent.push([
+                        requestMetrics.name,
+                        requestMetrics.numberOfRequests.ok.toString(),
+                        requestMetrics.numberOfRequests.ko.toString(),
+                        requestMetrics.minResponseTime.total.toString(),
+                        requestMetrics.maxResponseTime.total.toString(),
+                        requestMetrics.meanResponseTime.total.toString(),
+                        requestMetrics.standardDeviation.total.toString(),
+                        requestMetrics.meanNumberOfRequestsPerSecond.total.toString(),
+                    ]);
+                }
+            
+                await core.summary
+                    .addHeading(`Results for ${formattedLine}`)
+                    .addTable(tableContent)
+                    .addQuote('All times are in millisecond (ms). RPS means "Requests per Second"')
+                    .write()
+            }
