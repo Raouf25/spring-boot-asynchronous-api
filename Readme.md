@@ -26,6 +26,13 @@ Once the server is up and running, you can access the web service at http://loca
 mvn clean test  -D"skip.tests"=false -Plocal -Dapi.url=http://localhost:8080 
 ```
 
+// TODO
+## how run nrt locally:
+```shell
+cd loading
+mvn -Dgatling.simulation.name=HttpSimulation4 clean gatling:test
+```
+
 ## Github Actions
 Github Actions is a CI/CD platform that allows developers to automate their workflow with custom scripts. This project contains a Github Action workflow that executes the following steps:
 
@@ -45,7 +52,7 @@ For more information, please refer to the :
 - [Testing a Java Spring Boot REST API with Karate](https://semaphoreci.com/community/tutorials/testing-a-java-spring-boot-rest-api-with-karate)
 - [jacoco-multi-module-sample](https://medium.com/javarevisited/merging-integration-unit-and-functional-test-reports-with-jacoco-de5cde9b56e1)
 - [jacoco and sonar](https://www.baeldung.com/sonarqube-jacoco-code-coverage)
-
+- [gatling loading test](https://github.com/krizsan/gatling-examples)
 
 ---------------
 ## Steps of project building:
