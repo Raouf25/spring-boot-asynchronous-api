@@ -45,7 +45,7 @@ Github Actions is a CI/CD platform that allows developers to automate their work
    - ✅ [swagger documentation](https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html)
 5. Run non regression tests & publish the generated reports
    - ✅ [karate report](https://raouf25.github.io/spring-boot-asynchronous-api/karate/karate-summary.html)
-   
+
    The workflow also runs non-regression tests as part of the build process. The reports are published to the `reports` directory and can be accessed from the Github Actions UI. The reports can also be generated locally using the `mvn test` command.
 6. Run loading tests & publish the generated reports
    - ✅ [gatling report](https://raouf25.github.io/spring-boot-asynchronous-api/gatling/summary.html)
