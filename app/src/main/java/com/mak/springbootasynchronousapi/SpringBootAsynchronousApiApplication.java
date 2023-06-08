@@ -5,6 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.servers.Server;
+import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer;
+import org.springframework.context.annotation.Bean;
+
+import java.util.concurrent.Executors;
 
 @OpenAPIDefinition(servers = {@Server(url = "/", description = "Default Server URL")})
 
@@ -15,4 +19,9 @@ public class SpringBootAsynchronousApiApplication {
         SpringApplication.run(SpringBootAsynchronousApiApplication.class, args);
     }
 
+    @Bean
+    TomcatProtocolHandlerCustomizer<?> protocolHandlerVirtualThreadExecutorCustomizer() {
+        return protocolHandler ->
+            protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
+    }
 }
