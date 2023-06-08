@@ -52,4 +52,4 @@ COPY --chown=1000:1000  --from=MAVEN_BUILD /build/app/target/spring-boot-asynchr
 EXPOSE 8080
 
 # Run the JAR file as the entrypoint
-ENTRYPOINT [ "/jre/bin/java", "-jar", "/app/app.jar" ]
+ENTRYPOINT [ "/jre/bin/java", "--enable-preview", "-jar", "/app/app.jar" ]
