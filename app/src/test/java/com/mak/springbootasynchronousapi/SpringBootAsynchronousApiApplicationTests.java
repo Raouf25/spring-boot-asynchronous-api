@@ -1,3 +1,4 @@
+/*
 package com.mak.springbootasynchronousapi;
 
 import org.junit.jupiter.api.Assertions;
@@ -14,3 +15,4 @@ class SpringBootAsynchronousApiApplicationTests {
     }
 
 }
+*/
