@@ -30,6 +30,7 @@ jobs:
     environment:
       name: prep-loading-report
       # needs: non_regression_test
+      url: ${{ steps.deployment.outputs.page_url }}gatling-summary-${{ github.event.pull_request.number }}.html
     runs-on: ubuntu-latest
     steps:
 #      # Checkout the code from the repository
@@ -42,46 +43,64 @@ jobs:
         run: |
           mvn clean gatling:test --f loading/pom.xml
 
-      - name: Generate Job Summary
-        uses: actions/github-script@v6
+
+      # New step to generate gatling-summary.html
+      - name: Generate gatling-summary HTML
+        run: |
+          # Read the contents of lastRun.txt and store it in a variable
+          last_runs=$(cat loading/target/gatling/lastRun.txt | sort -n)
+
+          # Create a template for gatling-summary.html
+          cat <<EOF > loading/target/gatling/gatling-summary.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Gatling Reports</title>
+          </head>
+          <body>
+            <h1>Gatling Reports</h1>
+            <ul>
+          EOF
+
+          # Loop through the directories obtained from lastRun.txt
+          IFS=$'\n'
+          for run in $last_runs; do
+          # Add a list item with a link to each report directory
+          # Extraction du nom et de la date à partir de l'entrée
+            input=$run
+            report_name="${input%-*}"  # Supprime tout après le dernier tiret (-)
+            timestamp="${input#*-}"    # Supprime tout avant le premier tiret (-)
+            year="${timestamp:0:4}"
+            month="${timestamp:4:2}"
+            day="${timestamp:6:2}"
+            hour="${timestamp:8:2}"
+            minute="${timestamp:10:2}"
+            second="${timestamp:12:2}"
+            
+            formatted_date="${year}-${month}-${day} ${hour}:${minute}:${second}"
+            
+            # Construction de la sortie souhaitée
+           echo "            <li>Results for <a href='./$run/index.html'>$report_name</a> at $formatted_date</li>" >> loading/target/gatling/gatling-summary.html
+          done
+
+          # Close the HTML tags
+          echo "            </ul>" >> loading/target/gatling/gatling-summary.html
+          echo "          </body>" >> loading/target/gatling/gatling-summary.html
+          echo "</html>" >> loading/target/gatling/gatling-summary.html
+
+          # Display the generated gatling-summary.html file (optional)
+          cat loading/target/gatling/gatling-summary.html
+
+          mkdir -p doc-${{ github.event.pull_request.number }}
+          mv ./loading/target/gatling/* ./doc-${{ github.event.pull_request.number }}
+          mv ./doc-${{ github.event.pull_request.number }}/gatling-summary.html ./doc-${{ github.event.pull_request.number }}/gatling-summary-${{ github.event.pull_request.number }}.html
+
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          script: |
-            const fs = require('fs')
-            const lastRuns = fs.readFileSync(`loading/target/gatling/lastRun.txt`).toString().trim().split('\n');
-            
-            for(const run of lastRuns) {
-                const formattedLine = run.replace(/(.*)-(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, ' $1 at $2-$3-$4 $5:$6:$7');
-                const results = JSON.parse(fs.readFileSync(`loading/target/gatling/${run}/js/stats.json`).toString());
-                let tableContent = [
-                    [
-                        {data: 'Request', header: true}, 
-                        {data: 'Success ✅', header: true}, 
-                        {data: 'Errors ❌', header: true}, 
-                        {data: 'Min', header: true},
-                        {data: 'Max', header: true},
-                        {data: 'Avg.', header: true},
-                        {data: 'Std. Dev.', header: true},
-                        {data: 'RPS', header: true},
-                    ]
-                ];
-            
-                for(const result in results.contents) {
-                    const requestMetrics = results.contents[result].stats;
-                    tableContent.push([
-                        requestMetrics.name,
-                        requestMetrics.numberOfRequests.ok.toString(),
-                        requestMetrics.numberOfRequests.ko.toString(),
-                        requestMetrics.minResponseTime.total.toString(),
-                        requestMetrics.maxResponseTime.total.toString(),
-                        requestMetrics.meanResponseTime.total.toString(),
-                        requestMetrics.standardDeviation.total.toString(),
-                        requestMetrics.meanNumberOfRequestsPerSecond.total.toString(),
-                    ]);
-                }
-            
-                await core.summary
-                    .addHeading(`Results for ${formattedLine}`)
-                    .addTable(tableContent)
-                    .addQuote('All times are in millisecond (ms). RPS means "Requests per Second"')
-                    .write()
-            }
+          # Upload entire repository
+          path: './doc-${{ github.event.pull_request.number }}'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
