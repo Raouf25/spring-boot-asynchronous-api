@@ -11,15 +11,37 @@ RUN mvn -f /build/pom.xml clean package
 # Package stage
 #
 # base image to build a JRE
-FROM amazoncorretto:19.0.2-alpine as corretto-jdk
+FROM amazoncorretto:19.0.2-alpine AS deps
+
+# Identify dependencies
+COPY --from=MAVEN_BUILD ./build/app/target/*-SNAPSHOT.jar /app/app.jar
+RUN mkdir /app/unpacked && \
+    cd /app/unpacked && \
+    unzip ../app.jar && \
+    cd .. && \
+    $JAVA_HOME/bin/jdeps \
+    --ignore-missing-deps \
+    --print-module-deps \
+    -q \
+    --recursive \
+    --multi-release 17 \
+    --class-path="./unpacked/BOOT-INF/lib/*" \
+    --module-path="./unpacked/BOOT-INF/lib/*" \
+    ./app.jar > /deps.info
+
+# base image to build a JRE
+FROM amazoncorretto:19.0.2-alpine AS corretto-jdk
 
 # required for strip-debug to work
 RUN apk add --no-cache binutils
 
+# copy module dependencies info
+COPY --from=deps /deps.info /deps.info
+
 # Build small JRE image
 RUN $JAVA_HOME/bin/jlink \
          --verbose \
-         --add-modules ALL-MODULE-PATH \
+         --add-modules $(cat /deps.info) \
          --strip-debug \
          --no-man-pages \
          --no-header-files \
