@@ -26,6 +26,9 @@ concurrency:
 
 jobs:
   analyze_code:
+    environment:
+      name: analyze-code-quality
+      url: https://sonarcloud.io/summary/new_code?id=Raouf25_spring-boot-asynchronous-api
     name: Analyze Code Quality
     runs-on: ubuntu-latest
     steps:
