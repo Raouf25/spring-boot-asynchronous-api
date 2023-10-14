@@ -3,7 +3,7 @@
 
 
 ## Overview
-This project is a sample of an asynchronous API built in Spring Boot. It provides asynchronous endpoints that are called asynchronously and can be used as a starting point to build more complex systems.
+Spring-Boot-Asynchronous-API is a sample project showcasing the implementation of an asynchronous API built using Spring Boot. It offers asynchronous endpoints, allowing for concurrent and non-blocking execution, making it an excellent foundation for developing more complex systems.
 
 ## Prerequisites
 * Java 19
@@ -21,13 +21,14 @@ mvn spring-boot:run
 ```
 Once the server is up and running, you can access the web service at http://localhost:8080/.
 
-## how run nrt locally:
+## Running Non-Regression Tests Locally:
+You can run non-regression tests locally with the following command:
 ```shell
 mvn clean test  -D"skip.tests"=false -Plocal -Dapi.url=http://localhost:8080 
 ```
 
-// TODO
-## how run nrt locally:
+## Running Gatling Loading Tests Locally:
+To run Gatling loading tests locally, navigate to the loading directory and use the following command:
 ```shell
 cd loading
 mvn -Dgatling.simulation.name=HttpSimulation4 clean gatling:test
@@ -43,11 +44,11 @@ Github Actions is a CI/CD platform that allows developers to automate their work
 4. Deploy in Dev environment
    - ✅ [swagger documentation](https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html)
 5. Run non regression tests & publish the generated reports
-   - ✅ [karate report]( https://raouf25.github.io/spring-boot-asynchronous-api/karate-summary.html )
+   - ✅ [karate report](https://raouf25.github.io/spring-boot-asynchronous-api/karate/karate-summary.html)
    
    The workflow also runs non-regression tests as part of the build process. The reports are published to the `reports` directory and can be accessed from the Github Actions UI. The reports can also be generated locally using the `mvn test` command.
 6. Run loading tests & publish the generated reports
-   - ✅ [gatling report](https://raouf25.github.io/spring-boot-asynchronous-api/gatling-summary.html )
+   - ✅ [gatling report](https://raouf25.github.io/spring-boot-asynchronous-api/gatling/summary.html)
 
 ## Documentation
 For more information, please refer to the :
@@ -57,9 +58,10 @@ For more information, please refer to the :
 - [gatling loading test](https://github.com/krizsan/gatling-examples)
 
 ---------------
-## Steps of project building:
-1. ✅ Rest API implementation: [swagger documentation](https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html)
-2. ✅ Non Regression Test: [karate report]( https://raouf25.github.io/spring-boot-asynchronous-api/karate-summary.html )
-3. ✅ Code coverage (sonar & jacoco): [code coverage in sonar](https://sonarcloud.io/summary/new_code?id=Raouf25_spring-boot-asynchronous-api)
-4. ✅ Loading Test: [gatling report](https://raouf25.github.io/spring-boot-asynchronous-api/gatling-summary.html )
-5. 🚧 CI/CD releasing 
+## Project Building Steps:
+The project building steps are as follows:
+1. ✅ Implement the REST API. You can access the [Swagger documentation](https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html)
+2. ✅ Perform Non-Regression Testing. Review [Karate report](https://raouf25.github.io/spring-boot-asynchronous-api/karate/karate-summary.html)
+3. ✅ Monitor and Improve Code Coverage. View [code coverage in sonar](https://sonarcloud.io/summary/new_code?id=Raouf25_spring-boot-asynchronous-api)
+4. ✅ Run Loading Tests. Explore the [Gatling report](https://raouf25.github.io/spring-boot-asynchronous-api/gatling/summary.html)
+5. 🚧 Ongoing work on CI/CD and releases.

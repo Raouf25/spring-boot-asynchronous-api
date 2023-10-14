@@ -87,9 +87,9 @@ jobs:
 
   non_regression_test:
     name: Non Regression Test
-    environment:
-      name: dev-karate-report
-      url: ${{ steps.deployment.outputs.page_url }}karate/karate-summary.html
+#    environment:
+#      name: dev-karate-report
+#      url: ${{ steps.deployment.outputs.page_url }}karate/karate-summary.html
     needs: deploy
     runs-on: ubuntu-latest
     steps:
@@ -118,7 +118,7 @@ jobs:
       - name: Non Regression Test
         continue-on-error: true
         run: |
-          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='https://spring-boot-asynchronous-api.fly.dev' 
+          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='https://spring-boot-asynchronous-api.fly.dev'
 
       # Create a "doc" directory and move karate reports to it
       - name: Get report
@@ -126,21 +126,24 @@ jobs:
           mkdir -p doc
           mv ./nrt/target/karate-reports/* ./doc
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - uses: actions/upload-artifact@master
         with:
-          # Upload entire repository
-          path: './doc'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+          name: karate
+          path: doc/karate
+#      - name: Upload artifact
+#        uses: actions/upload-pages-artifact@v1
+#        with:
+#          # Upload entire repository
+#          path: './doc'
+#      - name: Deploy to GitHub Pages
+#        id: deployment
+#        uses: actions/deploy-pages@v1
 
   loading_test:
     name: Loading Test
-    environment:
-      name: prep-loading-report
-      # needs: non_regression_test
-      url: ${{ steps.deployment.outputs.page_url }}gatling/summary.html
+#    environment:
+#      name: prep-loading-report
+#      url: ${{ steps.deployment.outputs.page_url }}gatling/summary.html
     needs: non_regression_test
     runs-on: ubuntu-latest
     steps:
@@ -160,6 +163,42 @@ jobs:
           .github/scripts/extract_and_generate_html.sh
         shell: bash
 
+      - uses: actions/upload-artifact@master
+        with:
+          name: gatling
+          path: doc/gatling
+
+#      - name: Upload artifact
+#        uses: actions/upload-pages-artifact@v1
+#        with:
+#          # Upload entire repository
+#          path: './doc'
+#      - name: Deploy to GitHub Pages
+#        id: deployment
+#        uses: actions/deploy-pages@v1
+
+  deploy_reports:
+    name: Deploy Reports
+    needs:
+      - non_regression_test
+      - loading_test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Retrieve saved Non Regression Test
+        uses: actions/download-artifact@v3
+        with:
+          name: karate
+          path: doc/karate
+
+      - name: Retrieve saved Loading Test
+        uses: actions/download-artifact@v3
+        with:
+          name: gatling
+          path: doc/gatling
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
@@ -168,3 +207,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
+      - name: Echo URL Reports
+        run: |
+          echo "Non Regression Test url : ${{ steps.deployment.outputs.page_url }}karate/karate-summary.html"
+          echo "Loading Test url : ${{ steps.deployment.outputs.page_url }}gatling/summary.html"
