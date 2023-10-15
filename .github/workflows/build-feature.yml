@@ -177,6 +177,51 @@ jobs:
 #        id: deployment
 #        uses: actions/deploy-pages@v1
 
+      - name: Generate Job Summary
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs')
+            const lastRuns = fs.readFileSync(`loading/target/gatling/lastRun.txt`).toString().trim().split('\n');
+            
+            for(const run of lastRuns) {
+                const formattedLine = run.replace(/(.*)-(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, ' $1 at $2-$3-$4 $5:$6:$7');
+                const results = JSON.parse(fs.readFileSync(`loading/target/gatling/${run}/js/stats.json`).toString());
+                let tableContent = [
+                    [
+                        {data: 'Request', header: true}, 
+                        {data: 'Success ✅', header: true}, 
+                        {data: 'Errors ❌', header: true}, 
+                        {data: 'Min', header: true},
+                        {data: 'Max', header: true},
+                        {data: 'Avg.', header: true},
+                        {data: 'Std. Dev.', header: true},
+                        {data: 'RPS', header: true},
+                    ]
+                ];
+            
+                for(const result in results.contents) {
+                    const requestMetrics = results.contents[result].stats;
+                    tableContent.push([
+                        requestMetrics.name,
+                        requestMetrics.numberOfRequests.ok.toString(),
+                        requestMetrics.numberOfRequests.ko.toString(),
+                        requestMetrics.minResponseTime.total.toString(),
+                        requestMetrics.maxResponseTime.total.toString(),
+                        requestMetrics.meanResponseTime.total.toString(),
+                        requestMetrics.standardDeviation.total.toString(),
+                        requestMetrics.meanNumberOfRequestsPerSecond.total.toString(),
+                    ]);
+                }
+            
+                await core.summary
+                    .addHeading(`Results for ${formattedLine}`)
+                    .addTable(tableContent)
+                    .addQuote('All times are in millisecond (ms). RPS means "Requests per Second"')
+                    .write()
+            }
+          
+
   deploy_reports:
     name: Deploy Reports
     needs:
