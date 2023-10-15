@@ -13,9 +13,40 @@ copy_js_and_css() {
 
 # Function to perform replacements in HTML files
 replace_in_html_files() {
-  search=$1
-  replace=$2
-  find "${destination_dir}/${3}" -type f -name "*.html" -exec sed -i "" -e "s|$search|$replace|g" {} \;
+  search="$1"
+  replace="$2"
+  directory="$3"
+  find "${destination_dir}/${directory}" -type f -name "*.html" -exec sed -i -e "s|$search|$replace|g" {} \;
+}
+
+# Fonction pour extraire et formater les résultats
+generate_html_table() {
+    run="$1"
+    stats_file="./loading/target/gatling/$run/js/stats.json"
+
+    # Extraire les données nécessaires du fichier JSON avec jq
+    tableContent=$(jq -r '
+                     (.contents[] | "
+                       <tr>
+                         <th>" + .stats.name + "</th>
+                         <th>" + (.stats.numberOfRequests.ok | tostring) + "</th>
+                         <th>" + (.stats.numberOfRequests.ko | tostring) + "</th>
+                         <th>" + (.stats.minResponseTime.total | tostring) + "</th>
+                         <th>" + (.stats.maxResponseTime.total | tostring) + "</th>
+                         <th>" + (.stats.meanResponseTime.total | tostring) + "</th>
+                         <th>" + (.stats.standardDeviation.total | tostring) + "</th>
+                         <th>" + (.stats.meanNumberOfRequestsPerSecond.total | tostring) + "</th>
+                       </tr>"
+                     )' "$stats_file")
+
+    # Créer le tableau HTML
+    htmlTable="<table>
+        <tr><th>Request</th><th>Success ✅</th><th>Errors ❌</th><th>Min</th><th>Max</th><th>Avg.</th><th>Std. Dev.</th><th>RPS</th></tr>
+        $tableContent
+    </table>"
+
+    # Imprimer le contenu HTML
+    echo "$htmlTable"
 }
 
 # Read the contents of lastRun.txt and sort it
@@ -49,6 +80,11 @@ for run in "${last_runs[@]}"; do
   # Construct the desired output
   content+="            <li><h2>Results for <a href='./$run/index.html'>$report_name</a> at $formatted_date</h2></li>"
 
+  html_output=$(generate_html_table ${run})
+
+  # Append le contenu de la table à la variable content
+   content+="$html_output"
+
   # Copy .html and .log files to the destination directory
   mkdir -p "${destination_dir}/$run"
   cp -rf "./loading/target/gatling/$run"/* "${destination_dir}/$run"
@@ -66,7 +102,9 @@ for run in "${last_runs[@]}"; do
 done
 
 # Replace {{CONTENT}} in the template with the generated content
-sed -i "s|{{CONTENT}}|$content|g" "$output_file"
+# sed -i "s|{{CONTENT}}|$content|g" "$output_file"
+sed -i -e "/{{CONTENT}}/r /dev/stdin" "$output_file" <<< "$content"
+
 
 # Close the HTML tags (if necessary)
 # No changes needed

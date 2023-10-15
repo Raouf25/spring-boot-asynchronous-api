@@ -123,12 +123,12 @@ jobs:
       # Create a "doc" directory and move karate reports to it
       - name: Get report
         run: |
-          mkdir -p doc
-          mv ./nrt/target/karate-reports/* ./doc
+          mkdir -p doc/karate
+          mv ./nrt/target/karate-reports/* ./doc/karate
 
       - uses: actions/upload-artifact@master
         with:
-          name: karate
+          name: karate-reports
           path: doc/karate
 #      - name: Upload artifact
 #        uses: actions/upload-pages-artifact@v1
@@ -157,6 +157,12 @@ jobs:
         run: |
           mvn clean gatling:test --f loading/pom.xml
 
+      - name: Install jq
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install jq -y
+        shell: bash
+
       # New step to generate gatling-summary.html
       - name: Generate gatling-summary HTML
         run: |
@@ -165,7 +171,7 @@ jobs:
 
       - uses: actions/upload-artifact@master
         with:
-          name: gatling
+          name: gatling-reports
           path: doc/gatling
 
 #      - name: Upload artifact
@@ -220,7 +226,6 @@ jobs:
                     .addQuote('All times are in millisecond (ms). RPS means "Requests per Second"')
                     .write()
             }
-          
 
   deploy_reports:
     name: Deploy Reports
@@ -235,13 +240,13 @@ jobs:
       - name: Retrieve saved Non Regression Test
         uses: actions/download-artifact@v3
         with:
-          name: karate
+          name: karate-reports
           path: doc/karate
 
       - name: Retrieve saved Loading Test
         uses: actions/download-artifact@v3
         with:
-          name: gatling
+          name: gatling-reports
           path: doc/gatling
 
       - name: Upload artifact
