@@ -97,17 +97,21 @@ for run in "${last_runs[@]}"; do
   replace_in_html_files "src=\"js/" "src=\"../js/" "$run"
   replace_in_html_files "\"style/" "\"../style/" "$run"
 
+  find "${destination_dir}/${run}" -type f -name "*.html" -exec sed -i 's/details_link\" href=\//details_link\" href=\"\.\//g' {} \;
+
+  replace_in_html_files "details_link\" href=\"" "details_link\" href=\"./" "$run"
+
   # Add "SUMMARY" link back to the Summary
-  replace_in_html_files '<div class="sous-menu">' '<div class="sous-menu">\n\t\t\t\t\t\t\t\t<div class="item "><a href="../summary.html">SUMMARY</a></div>' "$run"
+  replace_in_html_files '<div class="sous-menu">' '<div class="sous-menu"><div class="item "><a href="../summary.html">SUMMARY</a></div>' "$run"
 done
+
+ls -la ${destination_dir}
+
+tree ${destination_dir}
 
 # Replace {{CONTENT}} in the template with the generated content
 # sed -i "s|{{CONTENT}}|$content|g" "$output_file"
 sed -i -e "/{{CONTENT}}/r /dev/stdin" "$output_file" <<< "$content"
-
-
-# Close the HTML tags (if necessary)
-# No changes needed
 
 # Copy the summary.html file to the destination directory
 cp "$output_file" "${destination_dir}"
