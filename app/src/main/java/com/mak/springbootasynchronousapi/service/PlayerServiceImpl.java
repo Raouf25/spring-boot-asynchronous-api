@@ -46,7 +46,8 @@ public class PlayerServiceImpl implements PlayerService {
 
     public Mono<Player> addPlayer(Player player) {
         final String errorMessage = "Unable to add player with input:" + player;
-        return processWithErrorCheck(this.playerRepository.save(new Player(player)), errorMessage);
+        return processWithErrorCheck(this.playerRepository.save(new Player(player.id(),player.name(),player.age(),player.club(),player.nationality())),
+                errorMessage);
     }
 
     public Mono<Player> updatePlayer(Long id, Player playerInput) {
@@ -55,11 +56,8 @@ public class PlayerServiceImpl implements PlayerService {
         return processWithErrorCheck(this.playerRepository.findById(Objects.requireNonNull(id)),
                 errorMessage)
                 .flatMap(player -> {
-                    player
-                            .setName(Objects.requireNonNull(player.getName()))
-                            .setAge(Objects.requireNonNull(player.getAge()))
-                            .setClub(Objects.requireNonNull(player.getClub()));
-                    return this.playerRepository.save(player).log();
+                    Player newPlayer = new Player(playerInput.id(),player.name(),player.age(),player.club(),player.nationality());
+                    return this.playerRepository.save(newPlayer).log();
                 });
     }
 

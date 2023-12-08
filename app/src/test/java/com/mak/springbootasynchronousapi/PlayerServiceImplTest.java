@@ -45,8 +45,7 @@ class PlayerServiceImplTest {
     void testGetPlayerById() {
         // Given
         Long id = 1L;
-        Player player = new Player();
-        player.setId(id);
+        Player player = new Player(id,"Mohamed Salah",29,"Liverpool","Egypt");
 
         // When
         when(playerRepository.findById(id)).thenReturn(Mono.just(player));
@@ -59,7 +58,7 @@ class PlayerServiceImplTest {
     @Test
     void testGetAllPlayers() {
         // Given
-        Player player = new Player();
+        Player player = new Player(1L,"Mohamed Salah",29,"Liverpool","Egypt");
         Flux<Player> playerFlux = Flux.just(player);
 
         // When
@@ -74,8 +73,7 @@ class PlayerServiceImplTest {
     void testGetPlayersByClub() {
         // Given
         String club = "Barcelona";
-        Player player = new Player();
-        player.setClub(club);
+        Player player = new Player(1L,"Mohamed Salah",29,club,"Egypt");
         Flux<Player> playerFlux = Flux.just(player);
 
         // When
@@ -107,13 +105,13 @@ class PlayerServiceImplTest {
     void addPlayer_whenPlayerIsValid_addsPlayer() {
         // arrange
         Player player = new Player(null, "Cristiano Ronaldo", 36, "Juventus", "Portugal");
-        when(playerRepository.save(player)).thenReturn(Mono.just(new Player(1L, player.getName(), player.getAge(), player.getClub(), player.getNationality())));
+        when(playerRepository.save(player)).thenReturn(Mono.just(new Player(1L, player.name(), player.age(), player.club(), player.nationality())));
 
         // act
         Mono<Player> addedPlayer = playerService.addPlayer(player);
 
         // assert
-        StepVerifier.create(addedPlayer).expectNextMatches(p -> p.getId() != null && p.getName().equals("Cristiano Ronaldo")).verifyComplete();
+        StepVerifier.create(addedPlayer).expectNextMatches(p -> p.id() != null && p.name().equals("Cristiano Ronaldo")).verifyComplete();
     }
 
     @Test
