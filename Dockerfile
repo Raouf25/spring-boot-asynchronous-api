@@ -1,17 +1,17 @@
 #
 # Build stage
 #
-FROM maven:3.8.7-eclipse-temurin-19 AS MAVEN_BUILD
+FROM maven:3.9.5-eclipse-temurin-21-alpine AS MAVEN_BUILD
 COPY pom.xml /build/
-COPY . /build/
+COPY app /build/app/
 WORKDIR /build/
-RUN mvn -f /build/pom.xml clean package
+RUN mvn -f /build/app/pom.xml clean package
 
 #
 # Package stage
 #
 # base image to build a JRE
-FROM amazoncorretto:19.0.2-alpine AS deps
+FROM eclipse-temurin:21-alpine AS deps
 
 # Identify dependencies
 COPY --from=MAVEN_BUILD ./build/app/target/*-SNAPSHOT.jar /app/app.jar
@@ -30,7 +30,7 @@ RUN mkdir /app/unpacked && \
     ./app.jar > /deps.info
 
 # base image to build a JRE
-FROM amazoncorretto:19.0.2-alpine AS corretto-jdk
+FROM eclipse-temurin:21-alpine AS custome-jre-step
 
 # required for strip-debug to work
 RUN apk add --no-cache binutils
@@ -54,7 +54,7 @@ ENV JAVA_HOME=/jre
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 # copy JRE from the base image
-COPY --from=corretto-jdk /customjre $JAVA_HOME
+COPY --from=custome-jre-step /customjre $JAVA_HOME
 
 # Add app user
 ARG APPLICATION_USER=appuser
@@ -74,4 +74,4 @@ COPY --chown=1000:1000  --from=MAVEN_BUILD /build/app/target/spring-boot-asynchr
 EXPOSE 8080
 
 # Run the JAR file as the entrypoint
-ENTRYPOINT [ "/jre/bin/java", "-XX:+UseSerialGC","-Xss512k", "--enable-preview", "-jar", "/app/app.jar" ]
+ENTRYPOINT [ "/jre/bin/java", "-XX:+UseSerialGC","-Xss512k", "-jar", "/app/app.jar" ]

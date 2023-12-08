@@ -34,12 +34,12 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-        # Set up the Java Development Kit (JDK) version 19
-      - name: Set up JDK 19
-        uses: actions/setup-java@v3
+        # check: https://github.com/oracle-actions/setup-java
+      - name: 'Set up latest Oracle JDK 21'
+        uses: oracle-actions/setup-java@v1
         with:
-          distribution: 'corretto' # See 'Supported distributions' for available options
-          java-version: '19'
+          website: oracle.com
+          release: 21
 
       # Cache Sonar packages to speed up the build process
       - name: Cache SonarCloud packages
@@ -90,12 +90,12 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-        # Set up the Java Development Kit (JDK) version 19
-      - name: Set up JDK 19
-        uses: actions/setup-java@v3
+        # Set up the Java Development Kit (JDK) version 21
+      - name: 'Set up latest Oracle JDK 21'
+        uses: oracle-actions/setup-java@v1
         with:
-          distribution: 'corretto' # See 'Supported distributions' for available options
-          java-version: '19'
+          website: oracle.com
+          release: 21
 
       # Cache Maven packages to speed up the build process
       - name: Cache Maven packages
