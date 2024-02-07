@@ -23,7 +23,7 @@
         <scala.compat.version>2.12</scala.compat.version>
         <!-- Gatling version and Gatling Maven plug-in version. -->
         <gatling.version>3.3.1</gatling.version>
-        <gatling-plugin.version>3.0.5</gatling-plugin.version>
+        <gatling-plugin.version>4.8.1</gatling-plugin.version>
         <!--
             The first property specifies the package in which the Gatling simulations are found.
             The second property specifies the Gatling simulation that is to be run.
