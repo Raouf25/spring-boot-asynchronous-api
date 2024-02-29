@@ -20,9 +20,9 @@ public class SpringBootAsynchronousApiApplication {
         SpringApplication.run(SpringBootAsynchronousApiApplication.class, args);
     }
 
-    @Bean
-    TomcatProtocolHandlerCustomizer<ProtocolHandler> protocolHandlerVirtualThreadExecutorCustomizer() {
-        return protocolHandler ->
-            protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
-    }
+//    @Bean
+//    TomcatProtocolHandlerCustomizer<ProtocolHandler> protocolHandlerVirtualThreadExecutorCustomizer() {
+//        return protocolHandler ->
+//            protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
+//    }
 }
