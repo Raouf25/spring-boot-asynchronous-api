@@ -49,7 +49,7 @@ class HttpSimulation4 extends Simulation {
          * ten users during a period of 20 seconds.
          */
         theScenarioBuilder.inject(
-            rampUsers(9000).during(1 minutes)
+            rampUsers(2000).during(1 minutes)
         )
     ).protocols(theHttpProtocolBuilder)
 }

@@ -45,7 +45,8 @@ class HttpSimulation1 extends Simulation {
      * for instance the base URL, HTTP headers that are to be enclosed with all requests etc.
      */
     val theHttpProtocolBuilder: HttpProtocolBuilder = http
-        .baseUrl("http://computer-database.gatling.io")
+//        .baseUrl("http://computer-database.gatling.io")
+      .baseUrl("https://spring-boot-asynchronous-api.fly.dev/api/v1")
 
     /*
      * A scenario consists of one or more requests. For instance logging into a e-commerce
