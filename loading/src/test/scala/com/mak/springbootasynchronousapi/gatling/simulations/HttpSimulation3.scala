@@ -32,12 +32,14 @@ import io.gatling.http.request.builder.HttpRequestBuilder.toActionBuilder
 class HttpSimulation3 extends Simulation {
 
     val theHttpProtocolBuilder: HttpProtocolBuilder = http
-        .baseUrl("http://computer-database.gatling.io")
+//        .baseUrl("http://computer-database.gatling.io")
+      .baseUrl("https://spring-boot-asynchronous-api.fly.dev/api/v1")
 
     val theScenarioBuilder: ScenarioBuilder = scenario("Scenario1")
         .exec(
             http("myRequest1")
-                .get("/computers"))
+//                .get("/computers"))
+                .get("/players"))
 
     setUp(
         /*

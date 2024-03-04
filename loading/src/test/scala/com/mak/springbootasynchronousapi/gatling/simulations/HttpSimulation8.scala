@@ -27,8 +27,10 @@ import scala.concurrent.duration._
   * @author Ivan Krizsan
   */
 class HttpSimulation8 extends HttpSimulationBaseClass{
-    scenario1BaseURL = "http://computer-database.gatling.io"
-    scenario1RequestPath = "computers"
+//    scenario1BaseURL = "http://computer-database.gatling.io"
+    scenario1BaseURL = "https://spring-boot-asynchronous-api.fly.dev/api/v1"
+//    scenario1RequestPath = "computers"
+    scenario1RequestPath = "players"
     finalUserCount = 4
     userCountRampUpTime = (5 seconds)
 
