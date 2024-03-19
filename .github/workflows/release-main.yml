@@ -1,0 +1,66 @@
+name: Release Project
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow bump_version
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  POM_PATH: ${{ github.workspace }}
+
+jobs:
+  # check:   https://dev.to/shayki5/github-action-for-building-maven-project-with-docker-and-push-it-docker-hub-3c3k
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Disable shallow clones for better analysis relevance
+
+      - name: Bump jar version
+        id: bump
+        run: |
+          # Commit the changes
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          
+          OLD_VERSION=$(cd $POM_PATH && mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          
+          # Extracting major, minor, and build versions
+          IFS='.' read -ra parts <<< "$OLD_VERSION"
+          major="${parts[0]}"
+          minor="${parts[1]}"
+          build_version=$((parts[2] + 1))
+          
+          NEW_VERSION="${major}.${minor}.${build_version}"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          
+          echo "Updating pom.xml at $POM_PATH from $OLD_VERSION to $NEW_VERSION" for the production branch
+          git fetch
+          git checkout production
+          # Bump the version in the pom.xml file for the next release in production
+          mvn -q versions:set -DnewVersion="${NEW_VERSION}" --file $POM_PATH/pom.xml
+          git add $POM_PATH/pom.xml
+          git commit -m "chore: bump jar version from $OLD_VERSION to $NEW_VERSION"
+          git push origin HEAD:production
+
+      - name: Create Pull Request
+        run: |
+         NEW_VERSION=${{ env.NEW_VERSION }}
+         git fetch
+         git checkout -b bump-version-${NEW_VERSION}-SNAPSHOT
+         mvn -q versions:set -DnewVersion="${NEW_VERSION}-SNAPSHOT" --file $POM_PATH/pom.xml
+         git add $POM_PATH/pom.xml
+         git commit -m "chore: bump jar version from $OLD_VERSION to $NEW_VERSION-SNAPSHOT"
+         git push origin bump-version-${NEW_VERSION}-SNAPSHOT
+         PR_URL=$(gh pr create --title "Bump version to $NEW_VERSION-SNAPSHOT" --body "" --base main )
+         gh pr review $PR_URL --approve -b "I'm **approving** this pull request because **it includes a version bump for the jar file**"
+         gh pr merge --auto --merge "$PR_URL"
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
