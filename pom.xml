@@ -10,7 +10,7 @@
 
 	<groupId>com.mak</groupId>
 	<artifactId>spring-boot-asynchronous-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>pom</packaging>
 	<name>spring-boot-asynchronous-api</name>
 	<description>Reactive programming is a programming style that focuses on the flow of data within a system. It allows for improved scalability and performance by allowing the system to process data as it comes in, rather than waiting for all of the data to arrive before beginning processing. Additionally, reactive programming can simplify the code required to build a system by focusing on the flow of data rather than the control flow of a program. This can make the code easier to understand and maintain.</description>
