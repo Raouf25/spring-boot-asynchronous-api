@@ -13,14 +13,13 @@
     <artifactId>spring-boot-asynchronous-api-app</artifactId>
 
     <properties>
-
+        <java.version>21</java.version>
         <!-- SonarCloud -->
         <sonar.organization>raouf25-github</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.coverage.jacoco.xmlReportPaths> ${project.basedir}/report-aggregate/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-
     </properties>
 
     <dependencies>

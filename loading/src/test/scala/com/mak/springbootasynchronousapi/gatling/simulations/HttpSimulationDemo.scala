@@ -23,32 +23,30 @@ import io.gatling.http.protocol.HttpProtocolBuilder
 import scala.concurrent.duration._
 
 /**
-  * Example Gatling load test simulating a number of users that rises up to 10 users over
-  * a period of 20 seconds.
-  * Run this simulation with:
-  * mvn -Dgatling.simulation.name=HttpSimulation4 gatling:test
-  *
-  * @author Ivan Krizsan
-  */
-class HttpSimulation4 extends Simulation {
+ * Example Gatling load test simulating a number of users that rises up to 10 users over
+ * a period of 20 seconds.
+ * Run this simulation with:
+ * mvn -Dgatling.simulation.name=HttpSimulationDemo gatling:test
+ *
+ * @author Raouf Makhlouf
+ */
+class HttpSimulationDemo extends Simulation {
 
     val theHttpProtocolBuilder: HttpProtocolBuilder = http
-       // .baseUrl("https://spring-boot-efficient-search-api.fly.dev/api")
-        .baseUrl("https://spring-boot-asynchronous-api.fly.dev")
 
     val theScenarioBuilder: ScenarioBuilder = scenario("Scenario1")
-        .exec(
-            http("myRequest1")
-              //  .get("/cars?country=Japan"))
-                .get("/api/v1/players"))
+      .exec(http("aot - Reactive").get("http://localhost:8082/product/all"))
+      .exec(http("jit - Reactive").get("http://localhost:8083/product/all"))
+      .exec(http("aot - Non Reactive").get("http://localhost:8084/product/all"))
+      .exec(http("jit - Non Reactive").get("http://localhost:8085/product/all"))
+      .exec(http("aot - Non Reactive VT").get("http://localhost:8086/product/all"))
+      .exec(http("jit - Non Reactive VT").get("http://localhost:8087/product/all"))
+      .exec(http("aot - Reactive VT").get("http://localhost:8088/product/all"))
+      .exec(http("jit - Reactive VT").get("http://localhost:8089/product/all"))
 
     setUp(
-        /*
-         * Increase the number of users that sends requests in the scenario Scenario1 to
-         * ten users during a period of 20 seconds.
-         */
         theScenarioBuilder.inject(
-            rampUsers(9000).during(1 minutes)
+            rampUsers(5000).during(1 minutes)
         )
     ).protocols(theHttpProtocolBuilder)
 }

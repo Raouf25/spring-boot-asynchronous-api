@@ -56,6 +56,7 @@ For more information, please refer to the :
 - [jacoco-multi-module-sample](https://medium.com/javarevisited/merging-integration-unit-and-functional-test-reports-with-jacoco-de5cde9b56e1)
 - [jacoco and sonar](https://www.baeldung.com/sonarqube-jacoco-code-coverage)
 - [gatling loading test](https://github.com/krizsan/gatling-examples)
+- [gatling loading test project](https://github.com/Automation-Test-Starter/gatling-maven-scala-demo)
 
 ---------------
 ## Project Building Steps:

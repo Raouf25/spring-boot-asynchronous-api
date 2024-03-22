@@ -19,7 +19,6 @@ import io.gatling.core.Predef._
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
-import io.gatling.http.request.builder.HttpRequestBuilder.toActionBuilder
 
 /**
   * Example Gatling load test that sends one HTTP GET requests to a bad URL.
