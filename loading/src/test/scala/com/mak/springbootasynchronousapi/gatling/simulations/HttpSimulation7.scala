@@ -33,12 +33,14 @@ import io.gatling.http.request.builder.HttpRequestBuilder.toActionBuilder
   */
 class HttpSimulation7 extends Simulation {
     val theHttpProtocolBuilder: HttpProtocolBuilder = http
-        .baseUrl("http://computer-database.gatling.io")
+//        .baseUrl("http://computer-database.gatling.io")
+      .baseUrl("https://spring-boot-asynchronous-api.fly.dev/api/v1")
 
     val theScenarioBuilder: ScenarioBuilder = scenario("Scenario1")
         .exec(
             http("Request Computers List")
-                .get("/computers")
+//                .get("/computers")
+                .get("/players")
                 /* Several checks on the response can be specified. */
                 .check(
                     /* Check that the HTTP status returned is 200 or 201. */

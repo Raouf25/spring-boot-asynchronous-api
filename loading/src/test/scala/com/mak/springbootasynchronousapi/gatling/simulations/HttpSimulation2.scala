@@ -35,7 +35,8 @@ import scala.concurrent.duration._
 class HttpSimulation2 extends Simulation {
 
     val theHttpProtocolBuilder: HttpProtocolBuilder = http
-        .baseUrl("http://computer-database.gatling.io")
+//        .baseUrl("http://computer-database.gatling.io")
+      .baseUrl("https://spring-boot-asynchronous-api.fly.dev/api/v1")
 
     /*
      * This scenario consists of two GET requests; one to the base URL and one to /computers relative
@@ -50,8 +51,10 @@ class HttpSimulation2 extends Simulation {
                 .get("/"))
         .pace(4 seconds)
         .exec(
-            http("GET to /computers")
-                .get("/computers"))
+//            http("GET to /computers")
+            http("GET to /players")
+//                .get("/computers"))
+                .get("/players"))
 
     setUp(
         theScenarioBuilder.inject(atOnceUsers(1))
