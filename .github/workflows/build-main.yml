@@ -25,16 +25,19 @@ concurrency:
 
 jobs:
   analyze_code:
+    environment:
+      name: analyze-code-quality
+      url: https://sonarcloud.io/summary/new_code?id=Raouf25_spring-boot-asynchronous-api
     name: Analyze Code Quality
     runs-on: ubuntu-latest
     steps:
       # Checkout the code from the repository
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-        # check: https://github.com/oracle-actions/setup-java
+        # Set up the Java Development Kit (JDK) version 21
       - name: 'Set up latest Oracle JDK 21'
         uses: oracle-actions/setup-java@v1
         with:
@@ -43,7 +46,7 @@ jobs:
 
       # Cache Sonar packages to speed up the build process
       - name: Cache SonarCloud packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
@@ -51,7 +54,7 @@ jobs:
 
       # Cache Maven packages to speed up the build process
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -62,31 +65,54 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Raouf25_spring-boot-asynchronous-api
+        run: |
+          if [[ ${{ github.actor }} == 'dependabot[bot]' ]]; then
+            mvn -B test
+          else
+            mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Raouf25_spring-boot-asynchronous-api
+          fi
+
+  docker:
+    name: Build & push to Docker Hub
+    needs: analyze_code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t  raouf25/spring-boot-asynchronous-api .
+      - name: Push to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker push
+        run: |
+          docker push raouf25/spring-boot-asynchronous-api:latest
+          docker tag raouf25/spring-boot-asynchronous-api  registry.fly.io/spring-boot-asynchronous-api  
+          docker images | grep "spring-boot-asynchronous"
 
   deploy:
     environment:
       name: dev-swagger-ui
       url: https://spring-boot-asynchronous-api.fly.dev/swagger-ui/index.html
     name: Deploy app
-    needs: analyze_code
+    needs: docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only
+      - run: |
+          flyctl deploy -i registry.fly.io/spring-boot-asynchronous-api
 
   non_regression_test:
     name: Non Regression Test
-    environment:
-      name: dev-karate-report
-      url: ${{ steps.deployment.outputs.page_url }}karate-summary.html
     needs: deploy
     runs-on: ubuntu-latest
     steps:
       # Checkout the code from the repository
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
@@ -99,7 +125,7 @@ jobs:
 
       # Cache Maven packages to speed up the build process
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -109,13 +135,114 @@ jobs:
       - name: Non Regression Test
         continue-on-error: true
         run: |
-          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='https://spring-boot-asynchronous-api.fly.dev' 
+          mvn clean test  --f ./nrt/pom.xml -PflyServer -Dapi.url='https://spring-boot-asynchronous-api.fly.dev'
 
       # Create a "doc" directory and move karate reports to it
       - name: Get report
         run: |
-          mkdir -p doc
-          mv ./nrt/target/karate-reports/* ./doc
+          mkdir -p doc/karate
+          mv ./nrt/target/karate-reports/* ./doc/karate
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: karate
+          path: ./doc/karate/
+
+  loading_test:
+    name: Loading Test
+    needs: non_regression_test
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      # Execute Gatling Test Suite
+      - name: Execute Gatling Test Suite
+        continue-on-error: true
+        run: |
+          mvn --version
+          java --version
+          mvn clean gatling:test --f loading/pom.xml
+
+      # New step to generate gatling-summary.html
+      - name: Generate gatling-summary HTML
+        run: |
+          .github/scripts/extract_and_generate_html.sh
+        shell: bash
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gatling
+          path: doc/gatling
+
+      - name: Generate Job Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const lastRuns = fs.readFileSync(`loading/target/gatling/lastRun.txt`).toString().trim().split('\n');
+            for(const run of lastRuns) {
+                const formattedLine = run.replace(/(.*)-(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, ' $1 at $2-$3-$4 $5:$6:$7');
+                const results = JSON.parse(fs.readFileSync(`loading/target/gatling/${run}/js/stats.json`).toString());
+                let tableContent = [
+                    [
+                        {data: 'Request', header: true},
+                        {data: 'Success ✅', header: true},
+                        {data: 'Errors ❌', header: true},
+                        {data: 'Min', header: true},
+                        {data: 'Max', header: true},
+                        {data: 'Avg.', header: true},
+                        {data: 'Std. Dev.', header: true},
+                        {data: 'RPS', header: true},
+                    ]
+                ];
+                for(const result in results.contents) {
+                    const requestMetrics = results.contents[result].stats;
+                    tableContent.push([
+                        requestMetrics.name,
+                        requestMetrics.numberOfRequests.ok.toString(),
+                        requestMetrics.numberOfRequests.ko.toString(),
+                        requestMetrics.minResponseTime.total.toString(),
+                        requestMetrics.maxResponseTime.total.toString(),
+                        requestMetrics.meanResponseTime.total.toString(),
+                        requestMetrics.standardDeviation.total.toString(),
+                        requestMetrics.meanNumberOfRequestsPerSecond.total.toString(),
+                    ]);
+                }
+                await core.summary
+                    .addHeading(`Results for ${formattedLine}`)
+                    .addTable(tableContent)
+                    .addQuote('All times are in millisecond (ms). RPS means "Requests per Second"')
+                    .write()
+            }
+  deploy_reports:
+    name: Deploy Reports
+    needs:
+      - non_regression_test
+      - loading_test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Retrieve saved Non Regression Test
+        uses: actions/download-artifact@v4
+        with:
+          name: karate
+          path: ./doc/karate
+
+      - name: Retrieve saved Loading Test
+        uses: actions/download-artifact@v4
+        with:
+          name: gatling
+          path: doc/gatling
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
@@ -124,4 +251,9 @@ jobs:
           path: './doc'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v3
+
+      - name: Echo URL Reports
+        run: |
+          echo "Non Regression Test url : ${{ steps.deployment.outputs.page_url }}karate/karate-summary.html"
+          echo "Loading Test url : ${{ steps.deployment.outputs.page_url }}gatling/summary.html"

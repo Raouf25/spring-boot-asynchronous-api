@@ -16,8 +16,6 @@
 	<description>Reactive programming is a programming style that focuses on the flow of data within a system. It allows for improved scalability and performance by allowing the system to process data as it comes in, rather than waiting for all of the data to arrive before beginning processing. Additionally, reactive programming can simplify the code required to build a system by focusing on the flow of data rather than the control flow of a program. This can make the code easier to understand and maintain.</description>
 
 	<properties>
-		<java.version>21</java.version>
-
 		<!-- SonarCloud -->
 		<sonar.organization>raouf25-github</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>

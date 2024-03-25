@@ -22,6 +22,8 @@ replace_in_html_files() {
 }
 
 # Read the contents of lastRun.txt and sort it
+pwd
+tree .
 last_runs=($(sort -n < loading/target/gatling/lastRun.txt))
 
 # Create the HTML template
