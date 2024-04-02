@@ -7,8 +7,8 @@ destination_dir="doc/gatling"
 copy_js_and_css() {
   mkdir -p "${destination_dir}/js"
   mkdir -p "${destination_dir}/style"
-  cp -rf "./loading/target/gatling/${1}/js" "${destination_dir}"
-  cp -rf "./loading/target/gatling/${1}/style" "${destination_dir}"
+  cp -rf "../../loading/target/gatling/${1}/js" "${destination_dir}"
+  cp -rf "../../loading/target/gatling/${1}/style" "${destination_dir}"
 }
 
 # Function to perform replacements in HTML files
@@ -24,11 +24,11 @@ replace_in_html_files() {
 # Read the contents of lastRun.txt and sort it
 pwd
 tree .
-last_runs=($(sort -n < loading/target/gatling/lastRun.txt))
+last_runs=($(sort -n < ../../loading/target/gatling/lastRun.txt))
 
 # Create the HTML template
-template_file="./.github/scripts/template.html"
-output_file="loading/target/gatling/summary.html"
+template_file="./template.html"
+output_file="../../loading/target/gatling/summary.html"
 cp "$template_file" "$output_file"
 
 # Initialize the content variable
@@ -50,7 +50,7 @@ for run in "${last_runs[@]}"; do
 
   # Copy .html and .log files to the destination directory
   mkdir -p "${destination_dir}/$run"
-  cp -rf "./loading/target/gatling/$run"/* "${destination_dir}/$run"
+  cp -rf "../../loading/target/gatling/$run"/* "${destination_dir}/$run"
 
   # Remove unnecessary directories
   rm -rf "${destination_dir}/$run"/js
